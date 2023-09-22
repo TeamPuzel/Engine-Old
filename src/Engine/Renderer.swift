@@ -30,6 +30,20 @@ public struct Renderer: ~Copyable {
         }
     }
     
+    public mutating func circle(x: Int, y: Int, r: Int, color: Color = .white, fill: Bool = false) {
+        guard r >= 0 else { return }
+        for sx in (x - r)..<(x + r + 1) {
+            for sy in (y - r)..<(y + r + 1) {
+                let distance = Int(Double(((sx - x) * (sx - x)) + ((sy - y) * (sy - y))).squareRoot().rounded())
+                if fill {
+                    if distance <= r { pixel(x: sx, y: sy, color: color) }
+                } else {
+                    if distance == r { pixel(x: sx, y: sy, color: color) }
+                }
+            }
+        }
+    }
+    
     public mutating func text(_ string: Substring, x: Int, y: Int, foreground: Color = .white, background: Color? = nil, wrap: Bool = false) {
         let symbols = string.compactMap { char in Symbol(char) }
         for (off, sym) in symbols.enumerated() {
@@ -59,8 +73,6 @@ public struct Renderer: ~Copyable {
             }
         }
     }
-    
-    public static let lineHeight = 6
 }
 
 internal typealias Display = [[Color]]
@@ -131,6 +143,11 @@ extension Symbol: ExpressibleByArrayLiteral {
         precondition(elements.count == 5 && elements.allSatisfy { $0.count == 3 })
         self.data = elements
     }
+    
+    public static let lineStride = 6
+    public static let symbolStride = 4
+    public static let symbolHeight = 5
+    public static let symbolWidth = 3
 }
 
 extension Symbol {
