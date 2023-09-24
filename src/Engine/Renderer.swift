@@ -23,7 +23,7 @@ public struct Renderer: ~Copyable {
     public mutating func rectangle(x: Int, y: Int, w: Int, h: Int, color: Color = .white, fill: Bool = false) {
         for sx in 0..<w {
             for sy in 0..<h {
-                if sx == x || sx == x + w - 1 || sy == y || sy == y + h - 1 || fill {
+                if sx + x == x || sx + x == x + w - 1 || sy + y == y || sy + y == y + h - 1 || fill {
                     self.pixel(x: sx + x, y: sy + y, color: color)
                 }
             }
@@ -44,7 +44,7 @@ public struct Renderer: ~Copyable {
         }
     }
     
-    public mutating func text(_ string: Substring, x: Int, y: Int, foreground: Color = .white, background: Color? = nil, wrap: Bool = false) {
+    public mutating func text(_ string: some StringProtocol, x: Int, y: Int, foreground: Color = .white, background: Color? = nil, wrap: Bool = false) {
         let symbols = string.compactMap { char in Symbol(char) }
         for (off, sym) in symbols.enumerated() {
             if x + (4 * off) < 128 {
@@ -64,7 +64,7 @@ public struct Renderer: ~Copyable {
     private mutating func symbol(_ sym: Symbol, x: Int, y: Int, foreground: Color, background: Color?) {
         // Background
         if let bgc = background {
-            self.rectangle(x: x - 1, y: y - 1, w: 4, h: 7, color: bgc, fill: true)
+            self.rectangle(x: x - 1, y: y - 1, w: 5, h: 7, color: bgc, fill: true)
         }
         // Foreground
         for (sy, column) in sym.data.enumerated() {

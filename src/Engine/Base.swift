@@ -7,8 +7,6 @@ public protocol Game {
     func draw(renderer: inout Renderer)
 }
 
-internal var unsafeAllowMainClass = false
-
 let pixelSize = 8
 let windowMargin = pixelSize * 2
 let windowSize = 512 + windowMargin
@@ -22,7 +20,7 @@ public extension Game {
         let mirror = Mirror(reflecting: instance)
         let windowName = String(mirror.description.split(separator: " ").last!)
         
-        if mirror.displayStyle == .class && !unsafeAllowMainClass {
+        if mirror.displayStyle == .class {
             fatalError(
                 "Classes are not allowed to implement Game as they do not enforce self immutability required by draw."
             )
@@ -105,6 +103,8 @@ public struct Input {
         
         x /= Int32(pixelSize) / 2
         y /= Int32(pixelSize) / 2
+        x -= 2
+        y -= 2
         
         if x < 0 { x = 0 }
         if x > 127 { x = 127 }

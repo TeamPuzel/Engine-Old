@@ -1,21 +1,26 @@
 
-open class Application: Game {
-    public required init() { unsafeAllowMainClass = true }
-    
-    private final var mx: Int = 0, my: Int = 0
-    private var color = Color.black
-    private var tick = 0
-    
-    public final func update(input: Input) {
-        mx = input.mouse.x
-        my = input.mouse.y
-        if tick % 20 == 0 { color = Color(rawValue: color.rawValue + 1) ?? .black }
-        tick += 1
+public protocol Application: Game {
+    var root: View { get }
+}
+
+fileprivate var mx: Int = 0, my: Int = 0
+fileprivate var cursor: Sprite = .cursor
+fileprivate var cache: View!
+
+public extension Application {
+    init() {
+        self.init()
+        cache = self.root
     }
     
-    public final func draw(renderer: inout Renderer) {
+    mutating func update(input: Input) {
+        mx = input.mouse.x
+        my = input.mouse.y
+    }
+    
+    func draw(renderer: inout Renderer) {
         renderer.clear()
-//        drawView(renderer: &renderer, view: layout, x: 0, y: 0, w: 128, h: 128)
-        renderer.sprite(from: .cursor, x: mx, y: my)
+        root.draw(&renderer, env: .init(x: 0, y: 0, w: 128, h: 128))
+        renderer.sprite(from: cursor, x: mx, y: my)
     }
 }
