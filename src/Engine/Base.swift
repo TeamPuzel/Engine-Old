@@ -5,14 +5,22 @@ public protocol Game {
     init()
     mutating func update(input: Input)
     func draw(renderer: inout Renderer)
+    static var display: (w: Int, h: Int) { get }
 }
 
 let pixelSize = 8
 let windowMargin = pixelSize * 2
-let windowSize = 512 + windowMargin
+
+enum GameError: Error {
+    case createWindow
+}
 
 public extension Game {
-    static func main() {
+    static var display: (w: Int, h: Int) { (128, 128) }
+    internal static var windowWidth: Int { display.w * 4 }
+    internal static var windowHeight: Int { display.h * 4 }
+    
+    static func main() throws {
         SDL_Init(SDL_INIT_VIDEO)
         defer { SDL_Quit() }
         
@@ -26,13 +34,15 @@ public extension Game {
             )
         }
         
-        let window = SDL_CreateWindow(
+        guard let window = SDL_CreateWindow(
             windowName,
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
-            Int32(windowSize), Int32(windowSize),
+            Int32(windowWidth), Int32(windowHeight),
             SDL_WINDOW_ALLOW_HIGHDPI.rawValue
-        )
+        ) else {
+            throw GameError.createWindow
+        }
         defer { SDL_DestroyWindow(window) }
         
         let renderer = SDL_CreateRenderer(
@@ -44,7 +54,7 @@ public extension Game {
         
         SDL_ShowCursor(SDL_DISABLE)
         
-        var api = Renderer()
+        var api = Renderer(width: Self.display.w, height: Self.display.h)
         var event = SDL_Event()
         
         loop:
@@ -56,14 +66,14 @@ public extension Game {
                 }
             }
             
-            instance.update(input: Input())
+            instance.update(input: Input(width: display.w, height: display.h))
             
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1)
             SDL_RenderClear(renderer)
             instance.draw(renderer: &api)
-            for (x, column) in api.display.enumerated() {
-                for (y, pixel) in column.enumerated() {
-                    let color = pixel.rgb
+            for x in 0..<api.display.width {
+                for y in 0..<api.display.height {
+                    let color = api.display[x, y].rgb
                     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255)
                     var rect = SDL_Rect(
                         x: Int32(pixelSize * x + windowMargin),
@@ -83,7 +93,7 @@ public struct Input {
     public let up, down, left, right, a, b: Bool
     public let mouse: (x: Int, y: Int, left: Bool, right: Bool)
     
-    internal init() {
+    internal init(width w: Int, height h: Int) {
         var numKeys: Int32 = 0
         let keys = UnsafeBufferPointer(start: SDL_GetKeyboardState(&numKeys), count: Int(numKeys))
             .lazy.map { $0 == 1 }
@@ -107,9 +117,9 @@ public struct Input {
         y -= 2
         
         if x < 0 { x = 0 }
-        if x > 127 { x = 127 }
+        if x > w - 5 { x = Int32(w - 5) }
         if y < 0 { y = 0 }
-        if y > 127 { y = 127 }
+        if y > h - 5 { y = Int32(h - 5) }
         
         self.mouse = (Int(x), Int(y), left, right)
     }

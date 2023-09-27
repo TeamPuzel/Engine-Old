@@ -3,10 +3,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "Dungeons",
+    name: "Engine",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "Dungeons", dependencies: ["Engine"], path: "src/Dungeons"),
+        .executableTarget(name: "Stars", dependencies: ["Engine"], path: "src/Stars"),
         .executableTarget(name: "Editor", dependencies: ["Engine"], path: "src/Editor"),
         .executableTarget(name: "EditorPrototype", dependencies: ["Engine"], path: "src/EditorPrototype"),
         

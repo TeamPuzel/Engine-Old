@@ -1,14 +1,18 @@
 
 public struct Renderer: ~Copyable {
-    internal var display: Display = .init(repeating: .init(repeating: .black, count: 128), count: 128)
+    internal var display: Display
+    
+    init(width: Int, height: Int) {
+        self.display = .init(width: width, height: height)
+    }
     
     public mutating func clear(with color: Color = .black) {
-        self.display = .init(repeating: .init(repeating: color, count: 128), count: 128)
+        self.display.clear(with: color)
     }
     
     public mutating func pixel(x: Int, y: Int, color: Color = .white) {
-        if x < 0 || y < 0 || x > 127 || y > 127 { return }
-        self.display[x][y] = color
+        if x < 0 || y < 0 || x >= display.width - 4 || y >= display.height - 4 { return }
+        self.display[x, y] = color
     }
     
     public mutating func sprite(from sprite: Sprite, x: Int, y: Int, transparency: Color? = .black) {
@@ -47,7 +51,7 @@ public struct Renderer: ~Copyable {
     public mutating func text(_ string: some StringProtocol, x: Int, y: Int, foreground: Color = .white, background: Color? = nil, wrap: Bool = false) {
         let symbols = string.compactMap { char in Symbol(char) }
         for (off, sym) in symbols.enumerated() {
-            if x + (4 * off) < 128 {
+            if x + (4 * off) < display.width {
                 self.symbol(sym, x: x + (off * 4), y: y, foreground: foreground, background: background)
             } else if wrap {
                 self.text(
@@ -75,7 +79,25 @@ public struct Renderer: ~Copyable {
     }
 }
 
-internal typealias Display = [[Color]]
+internal struct Display {
+    private var data: [Color]
+    private(set) var width, height: Int
+    
+    init(width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        self.data = .init(repeating: .black, count: width * height)
+    }
+    
+    subscript(x: Int, y: Int) -> Color {
+        get { data[x + y * width] }
+        set { data[x + y * width] = newValue }
+    }
+    
+    mutating func clear(with color: Color = .black) {
+        self.data = .init(repeating: color, count: width * height)
+    }
+}
 
 public enum Color: UInt8 {
     case black
@@ -191,22 +213,23 @@ extension Symbol {
             case "y", "Y": self = .charY
             case "z", "Z": self = .charZ
             
-            case "!": self = .exclamationMark
-            case "?": self = .questionMark
+            case "!":  self = .exclamationMark
+            case "?":  self = .questionMark
             case "\"": self = .doubleQuote
-            case "+": self = .plus
-            case "-": self = .minus
-            case "=": self = .equal
-            case ".": self = .period
-            case ",": self = .comma
-            case ":": self = .colon
-            case ";": self = .semicolon
-            case "/": self = .slash
-            case "%": self = .percentage
-            case "(": self = .roundBracketLeft
-            case ")": self = .roundBracketRight
-            case "_": self = .underscore
-            case " ": self = .space
+            case "'":  self = .singleQuote
+            case "+":  self = .plus
+            case "-":  self = .minus
+            case "=":  self = .equal
+            case ".":  self = .period
+            case ",":  self = .comma
+            case ":":  self = .colon
+            case ";":  self = .semicolon
+            case "/":  self = .slash
+            case "%":  self = .percentage
+            case "(":  self = .roundBracketLeft
+            case ")":  self = .roundBracketRight
+            case "_":  self = .underscore
+            case " ":  self = .space
             
             default: return nil
         }
