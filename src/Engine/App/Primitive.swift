@@ -1,33 +1,21 @@
 
-open class Text: View {
-    public final var text: String
-    
-    public init(_ text: String) {
-        self.text = text
-    }
-    
-    final override func draw(_ renderer: inout Renderer, env: View.Environment) {
-        renderer.text(text[...], x: env.x, y: env.y)
-    }
+extension Never: View {
+    public var body: UnitView<Never> { fatalError() }
 }
 
-public final class HStack: View {
-    public override init() {
-        super.init()
-        self.direction = .horizontal
-    }
+protocol Primitive: View {}
+extension Primitive {
+    public var body: Never { fatalError() }
 }
 
-public final class VStack: View {
-    public override init() {
-        super.init()
-        self.direction = .vertical
-    }
+public struct Empty: Primitive {
+    public init() {}
 }
 
-public final class ZStack: View {
-    public override init() {
-        super.init()
-        self.direction = .depth
-    }
+public struct UnitView<Content: View>: Primitive {
+    internal let content: Content
+}
+
+public struct TupleView<each Content: View>: Primitive {
+    internal let content: (repeat each Content)
 }

@@ -234,7 +234,7 @@ extension Symbol {
             case "_":  self = .underscore
             case " ":  self = .space
             
-            default: return nil
+            case _: return nil
         }
     }
 }
