@@ -3,6 +3,8 @@ import Engine
 
 @main
 struct Editor: Game {
+    static let display = (w: 320, h: 200)
+    
     var mx: Int = 0, my: Int = 0
     
     mutating func update(input: Input) {
@@ -42,18 +44,5 @@ extension Editor {
             color: .black, fill: true
         )
         
-        var color = 0
-        for y in 0...3 {
-            for x in 0...3 {
-                renderer.rectangle(
-                    x: origin.x + x * elSize + 1,
-                    y: origin.y + y * elSize + 1,
-                    w: elSize, h: elSize,
-                    color: Color(rawValue: UInt8(color))!,
-                    fill: true
-                )
-                color += 1
-            }
-        }
     }
 }

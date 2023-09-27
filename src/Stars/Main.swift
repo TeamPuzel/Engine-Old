@@ -6,9 +6,6 @@ struct Stars: Game {
     static let display = (w: 320, h: 200)
     
     var x: Int = 16, y: Int = 16
-    var tick = 0
-    
-    typealias Star = (x: Double, y: Double)
     
     var layer1: [Star] = .init(computing: 1024, by: layer1Speed, display: display)
     var layer2: [Star] = .init(computing: 1024, by: layer2Speed, display: display)
@@ -26,8 +23,6 @@ struct Stars: Game {
         layer1.advance(by: Self.layer1Speed, display: Self.display)
         layer2.advance(by: Self.layer2Speed, display: Self.display)
         layer3.advance(by: Self.layer3Speed, display: Self.display)
-        
-        tick += 1
     }
     
     func draw(renderer: inout Renderer) {
@@ -41,7 +36,9 @@ struct Stars: Game {
     }
 }
 
-extension [Stars.Star] {
+typealias Star = (x: Double, y: Double)
+
+extension [Star] {
     init(computing count: Int, by distance: Double, display: (w: Int, h: Int)) {
         self = []
         for _ in 1...count { self.advance(by: distance, display: display) }

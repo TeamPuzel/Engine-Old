@@ -99,7 +99,7 @@ internal struct Display {
     }
 }
 
-public enum Color: UInt8 {
+public enum Color: Equatable {
     case black
     case darkBlue
     case darkPurple
@@ -116,6 +116,7 @@ public enum Color: UInt8 {
     case lavender
     case pink
     case peach
+    case custom(r: UInt8, g: UInt8, b: UInt8)
     
     internal var rgb: RGB {
         switch self {
@@ -135,6 +136,8 @@ public enum Color: UInt8 {
             case .lavender:   RGB(r: 131, g: 118, b: 156)
             case .pink:       RGB(r: 255, g: 119, b: 168)
             case .peach:      RGB(r: 255, g: 204, b: 170)
+                
+            case .custom(let r, let g, let b): RGB(r: r, g: g, b: b)
         }
     }
 }

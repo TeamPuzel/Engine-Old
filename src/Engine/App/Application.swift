@@ -16,7 +16,7 @@ public extension Application {
     
     func draw(renderer: inout Renderer) {
         renderer.clear()
-        cache.draw(&renderer, env: .init(x: 0, y: 0, w: 128, h: 128))
+        cache.draw(&renderer, env: .init(x: 0, y: 0, w: Self.display.w, h: Self.display.h))
         renderer.sprite(from: cursor, x: mx, y: my)
     }
 }
