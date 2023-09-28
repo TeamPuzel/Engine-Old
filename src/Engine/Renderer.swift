@@ -11,15 +11,16 @@ public struct Renderer: ~Copyable {
     }
     
     public mutating func pixel(x: Int, y: Int, color: Color = .white) {
-        if x < 0 || y < 0 || x >= display.width - 4 || y >= display.height - 4 { return }
+        if x < 0 || y < 0 || x >= display.width || y >= display.height { return }
         self.display[x, y] = color
     }
     
-    public mutating func sprite(from sprite: Sprite, x: Int, y: Int, transparency: Color? = .black) {
+    public mutating func sprite(from sprite: Sprite, x: Int, y: Int) {
         for (sy, column) in sprite.data.enumerated() {
             for (sx, pixel) in column.enumerated() {
-                if let t = transparency { if t == pixel { continue } }
-                self.pixel(x: x + sx, y: y + sy, color: pixel)
+                if let pixel {
+                    self.pixel(x: x + sx, y: y + sy, color: pixel)
+                }
             }
         }
     }
@@ -99,59 +100,80 @@ internal struct Display {
     }
 }
 
-public enum Color: Equatable {
-    case black
-    case darkBlue
-    case darkPurple
-    case darkGreen
-    case brown
-    case darkGray
-    case lightGray
-    case white
-    case red
-    case orange
-    case yellow
-    case green
-    case blue
-    case lavender
-    case pink
-    case peach
-    case custom(r: UInt8, g: UInt8, b: UInt8)
+public struct Color: Equatable {
+    public let r, g, b: UInt8
     
-    internal var rgb: RGB {
-        switch self {
-            case .black:      RGB(r: 0,   g: 0,   b: 0  )
-            case .darkBlue:   RGB(r: 29,  g: 43,  b: 83 )
-            case .darkPurple: RGB(r: 126, g: 37,  b: 83 )
-            case .darkGreen:  RGB(r: 0,   g: 135, b: 81 )
-            case .brown:      RGB(r: 171, g: 82,  b: 53 )
-            case .darkGray:   RGB(r: 95,  g: 87,  b: 79 )
-            case .lightGray:  RGB(r: 194, g: 195, b: 199)
-            case .white:      RGB(r: 255, g: 241, b: 232)
-            case .red:        RGB(r: 255, g: 0,   b: 77 )
-            case .orange:     RGB(r: 255, g: 163, b: 0  )
-            case .yellow:     RGB(r: 255, g: 236, b: 39 )
-            case .green:      RGB(r: 0,   g: 228, b: 54 )
-            case .blue:       RGB(r: 41,  g: 173, b: 255)
-            case .lavender:   RGB(r: 131, g: 118, b: 156)
-            case .pink:       RGB(r: 255, g: 119, b: 168)
-            case .peach:      RGB(r: 255, g: 204, b: 170)
-                
-            case .custom(let r, let g, let b): RGB(r: r, g: g, b: b)
-        }
+    public init(r: UInt8, g: UInt8, b: UInt8) {
+        self.r = r
+        self.g = g
+        self.b = b
+    }
+    
+    public init(white: UInt8) {
+        self.r = white
+        self.g = white
+        self.b = white
+    }
+    
+    public static let black      = Self(r: 0,   g: 0,   b: 0  )
+    public static let darkBlue   = Self(r: 29,  g: 43,  b: 83 )
+    public static let darkPurple = Self(r: 126, g: 37,  b: 83 )
+    public static let darkGreen  = Self(r: 0,   g: 135, b: 81 )
+    public static let brown      = Self(r: 171, g: 82,  b: 53 )
+    public static let darkGray   = Self(r: 95,  g: 87,  b: 79 )
+    public static let lightGray  = Self(r: 194, g: 195, b: 199)
+    public static let white      = Self(r: 255, g: 241, b: 232)
+    public static let red        = Self(r: 255, g: 0,   b: 77 )
+    public static let orange     = Self(r: 255, g: 163, b: 0  )
+    public static let yellow     = Self(r: 255, g: 236, b: 39 )
+    public static let green      = Self(r: 0,   g: 228, b: 54 )
+    public static let blue       = Self(r: 41,  g: 173, b: 255)
+    public static let lavender   = Self(r: 131, g: 118, b: 156)
+    public static let pink       = Self(r: 255, g: 119, b: 168)
+    public static let peach      = Self(r: 255, g: 204, b: 170)
+}
+
+public extension Color {
+    enum Strawberry {
+        public static let red    = Color(r: 214, g: 95,  b: 118)
+        public static let banana = Color(r: 230, g: 192, b: 130)
+        public static let apple  = Color(r: 205, g: 220, b: 146)
+        public static let lime   = Color(r: 177, g: 219, b: 159)
+        public static let sky    = Color(r: 129, g: 171, b: 201)
+        public static let lemon  = Color(r: 240, g: 202, b: 101)
+        public static let orange = Color(r: 227, g: 140, b: 113)
+        
+        public static let white = Color(r: 224, g: 224, b: 224)
+        public static let light = Color(r: 128, g: 128, b: 128)
+        public static let gray  = Color(r: 59,  g: 59,  b: 59 )
+        public static let dark  = Color(r: 28,  g: 28,  b: 28 )
+        public static let black = Color(r: 15,  g: 15,  b: 15 )
     }
 }
 
-internal struct RGB { var r, g, b: UInt8 }
+extension Color {
+    public static func + (lhs: Color, rhs: Color) -> Color {
+        .init(r: lhs.r + rhs.r, g: lhs.g + rhs.g, b: lhs.b + rhs.b)
+    }
+    public static func - (lhs: Color, rhs: Color) -> Color {
+        .init(r: lhs.r - rhs.r, g: lhs.g - rhs.g, b: lhs.b - rhs.b)
+    }
+    public static func + (lhs: Color, rhs: UInt8) -> Color {
+        .init(r: lhs.r + rhs, g: lhs.g + rhs, b: lhs.b + rhs)
+    }
+    public static func - (lhs: Color, rhs: UInt8) -> Color {
+        .init(r: lhs.r - rhs, g: lhs.g - rhs, b: lhs.b - rhs)
+    }
+}
 
 public struct Sprite {
-    internal let data: [[Color]]
+    internal let data: [[Color?]]
 }
 
 extension Sprite: ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = [Color]
+    public typealias ArrayLiteralElement = [Color?]
     
-    public init(arrayLiteral elements: [Color]...) {
+    public init(arrayLiteral elements: [Color?]...) {
         precondition(elements.count == 8 && elements.allSatisfy { $0.count == 8 })
         self.data = elements
     }
