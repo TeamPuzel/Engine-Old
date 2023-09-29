@@ -81,7 +81,7 @@ public struct Renderer: ~Copyable {
 }
 
 internal struct Display {
-    private var data: [Color]
+    internal var data: [Color]
     private(set) var width, height: Int
     
     init(width: Int, height: Int) {

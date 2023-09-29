@@ -18,6 +18,8 @@ enum GameError: Error {
 }
 
 fileprivate var shouldQuit = false
+fileprivate var window: OpaquePointer!
+fileprivate var renderer: OpaquePointer!
 
 public extension Game {
     static var display: (w: Int, h: Int) { (128, 128) }
@@ -29,9 +31,8 @@ public extension Game {
     
     mutating func setup() {}
     
-    func exit() {
-        shouldQuit = true
-    }
+    func quit() { shouldQuit = true }
+    func minimize() { SDL_MinimizeWindow(window) }
     
     static func main() throws {
         SDL_Init(SDL_INIT_VIDEO)
@@ -47,19 +48,18 @@ public extension Game {
             )
         }
         
-        guard let window = SDL_CreateWindow(
+        window = SDL_CreateWindow(
             windowName,
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
             Int32(windowWidth), Int32(windowHeight),
             SDL_WINDOW_ALLOW_HIGHDPI.rawValue
-        ) else {
-            throw GameError.createWindow
-        }
+        )
+        guard window != nil else { throw GameError.createWindow }
         defer { SDL_DestroyWindow(window) }
         SDL_SetWindowBordered(window, SDL_bool(from: windowBorder))
         
-        let renderer = SDL_CreateRenderer(
+        renderer = SDL_CreateRenderer(
             window, -1,
             SDL_RENDERER_ACCELERATED.rawValue |
             SDL_RENDERER_PRESENTVSYNC.rawValue
@@ -72,6 +72,16 @@ public extension Game {
         var event = SDL_Event()
         
         instance.setup()
+        
+        let texture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGB24.rawValue,
+            Int32(SDL_TEXTUREACCESS_STREAMING.rawValue),
+            Int32(api.display.width), Int32(api.display.height)
+        )
+        defer { SDL_DestroyTexture(texture) }
+        
+        SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
         
         loop:
         while true {
@@ -87,22 +97,12 @@ public extension Game {
                 input: Input(width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin)
             )
             
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1)
             SDL_RenderClear(renderer)
+            
             instance.draw(renderer: &api)
-            for x in 0..<api.display.width {
-                for y in 0..<api.display.height {
-                    let color = api.display[x, y]
-                    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255)
-                    var rect = SDL_Rect(
-                        x: Int32(x * pixelSize),
-                        y: Int32(y * pixelSize),
-                        w: Int32(pixelSize),
-                        h: Int32(pixelSize)
-                    )
-                    SDL_RenderFillRect(renderer, &rect)
-                }
-            }
+            SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
+            SDL_RenderCopy(renderer, texture, nil, nil)
+            
             SDL_RenderPresent(renderer)
         }
         

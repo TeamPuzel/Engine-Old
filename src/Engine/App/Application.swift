@@ -11,10 +11,10 @@ fileprivate var surfaces: [Surface] = [
 ]
 
 public extension Application {
-    static var display: (w: Int, h: Int) { (w: 640, h: 400) }
+    static var display: (w: Int, h: Int) { (w: 480, h: 300) }
     static var windowBorder: Bool { false }
     static var windowMargin: Int { 0 }
-    static var pixelSize: Int { 4 }
+    static var pixelSize: Int { 6 }
     
     mutating func setup() {
         
@@ -23,6 +23,13 @@ public extension Application {
     mutating func update(input: Input) {
         mx = input.mouse.x
         my = input.mouse.y
+        
+        if mx >= 6 && mx < 6 + 5 && my >= 6 && my < 6 + 5 && input.mouse.left {
+            self.quit()
+        }
+        if mx >= 6 + 9 && mx < 6 + 5 + 9 && my >= 6 && my < 6 + 5 && input.mouse.left {
+            self.minimize()
+        }
     }
     
     func draw(renderer: inout Renderer) {
@@ -39,10 +46,10 @@ public extension Application {
         renderer.rectangle(x: 6, y: 6, w: 5, h: 5, color: .Strawberry.red - 20, fill: true)
         renderer.rectangle(x: 6, y: 6, w: 5, h: 5, color: .Strawberry.red)
         
-        renderer.rectangle(x: 6 + 9, y: 6, w: 5, h: 5, color: .Strawberry.banana - 20, fill: true)
+        renderer.rectangle(x: 6 + 9, y: 6, w: 5, h: 5, color: .Strawberry.banana - 30, fill: true)
         renderer.rectangle(x: 6 + 9, y: 6, w: 5, h: 5, color: .Strawberry.banana)
         
-        renderer.rectangle(x: 6 + 9 * 2, y: 6, w: 5, h: 5, color: .Strawberry.lime - 20, fill: true)
+        renderer.rectangle(x: 6 + 9 * 2, y: 6, w: 5, h: 5, color: .Strawberry.lime - 30, fill: true)
         renderer.rectangle(x: 6 + 9 * 2, y: 6, w: 5, h: 5, color: .Strawberry.lime)
         
         renderer.sprite(from: cursor, x: mx, y: my)
