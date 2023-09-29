@@ -7,9 +7,9 @@ struct Stars: Game {
     
     var x: Int = 16, y: Int = 16
     
-    var layer1: [Star] = .init(computing: 1024, by: layer1Speed, display: display)
-    var layer2: [Star] = .init(computing: 1024, by: layer2Speed, display: display)
-    var layer3: [Star] = .init(computing: 1024, by: layer3Speed, display: display)
+    var layer1: [Star] = .init(computing: 2048, by: layer1Speed, display: display)
+    var layer2: [Star] = .init(computing: 2048, by: layer2Speed, display: display)
+    var layer3: [Star] = .init(computing: 2048, by: layer3Speed, display: display)
     
     static let layer1Speed = 0.75 / 2
     static let layer2Speed = 0.5 / 2

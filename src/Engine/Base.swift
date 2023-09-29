@@ -18,6 +18,7 @@ enum GameError: Error {
 }
 
 fileprivate var shouldQuit = false
+fileprivate var isFocused = true
 fileprivate var window: OpaquePointer!
 fileprivate var renderer: OpaquePointer!
 
@@ -33,6 +34,7 @@ public extension Game {
     
     func quit() { shouldQuit = true }
     func minimize() { SDL_MinimizeWindow(window) }
+    var windowIsFocused: Bool { isFocused }
     
     static func main() throws {
         SDL_Init(SDL_INIT_VIDEO)
@@ -83,6 +85,13 @@ public extension Game {
         
         SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
         
+        var drawRect = SDL_Rect(
+            x: Int32(windowMargin * pixelSize),
+            y: Int32(windowMargin * pixelSize),
+            w: Int32((windowWidth - windowMargin * pixelSize) * 2),
+            h: Int32((windowHeight - windowMargin * pixelSize) * 2)
+        )
+        
         loop:
         while true {
             if shouldQuit { break loop }
@@ -93,6 +102,12 @@ public extension Game {
                 }
             }
             
+            if SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS.rawValue != 0 {
+                isFocused = true
+            } else {
+                isFocused = false
+            }
+            
             instance.update(
                 input: Input(width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin)
             )
@@ -101,7 +116,7 @@ public extension Game {
             
             instance.draw(renderer: &api)
             SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
-            SDL_RenderCopy(renderer, texture, nil, nil)
+            SDL_RenderCopy(renderer, texture, nil, &drawRect)
             
             SDL_RenderPresent(renderer)
         }
@@ -125,9 +140,18 @@ public struct Input {
         self.a     = keys[Int(SDL_SCANCODE_COMMA.rawValue)]
         self.b     = keys[Int(SDL_SCANCODE_PERIOD.rawValue)]
         
+        var wx: Int32 = 0
+        var wy: Int32 = 0
+        SDL_GetWindowPosition(window, &wx, &wy)
+        
         var x: Int32 = 0
         var y: Int32 = 0
-        let btns = SDL_GetMouseState(&x, &y)
+        let btns = SDL_GetGlobalMouseState(&x, &y)
+        
+        // Correct by window position
+        x -= wx
+        y -= wy
+        
         let left = btns & 1 != 0
         let right = btns & 3 != 0
         
@@ -136,10 +160,10 @@ public struct Input {
         x -= Int32(margin)
         y -= Int32(margin)
         
-        if x < 0 { x = 0 }
-        if x > w { x = Int32(w) }
-        if y < 0 { y = 0 }
-        if y > h { y = Int32(h) }
+//        if x < 0 { x = 0 }
+//        if x > w { x = Int32(w) }
+//        if y < 0 { y = 0 }
+//        if y > h { y = Int32(h) }
         
         self.mouse = (Int(x), Int(y), left, right)
     }
