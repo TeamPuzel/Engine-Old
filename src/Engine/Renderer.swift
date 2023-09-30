@@ -82,7 +82,7 @@ public struct Renderer: ~Copyable {
 
 internal struct Display {
     internal var data: [Color]
-    private(set) var width, height: Int
+    internal let width, height: Int
     
     init(width: Int, height: Int) {
         self.width = width
@@ -168,6 +168,22 @@ extension Color {
 
 public struct Sprite {
     internal let data: [[Color?]]
+}
+
+public struct Image {
+    public var data: [Color]
+    public let width, height: Int
+    
+    init(width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        self.data = .init(repeating: .black, count: width * height)
+    }
+    
+    subscript(x: Int, y: Int) -> Color {
+        get { data[x + y * width] }
+        set { data[x + y * width] = newValue }
+    }
 }
 
 extension Sprite: ExpressibleByArrayLiteral {
