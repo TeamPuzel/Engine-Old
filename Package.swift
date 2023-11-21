@@ -7,10 +7,11 @@ let package = Package(
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(name: "Stars", dependencies: ["Engine"], path: "src/Stars"),
-        .executableTarget(name: "Editor", dependencies: ["Engine"], path: "src/Editor"),
-        .executableTarget(name: "Chess", dependencies: ["Engine"], path: "src/Chess"),
+        .executableTarget(name: "Editor", dependencies: ["Engine", "UI"], path: "src/Editor"),
         
-        .target(name: "Engine", dependencies: ["SDL"], path: "src/Engine"),
+        .target(name: "Engine", dependencies: ["SDL"], path: "src/Engine/Core"),
+        .target(name: "UI", dependencies: ["Engine"], path: "src/Engine/UI"),
+        
         .systemLibrary(name: "SDL", path: "sys", pkgConfig: "sdl2")
     ]
 )

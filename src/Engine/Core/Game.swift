@@ -59,7 +59,7 @@ public extension Game {
         
         let texture = SDL_CreateTexture(
             renderer,
-            SDL_PIXELFORMAT_RGB24.rawValue,
+            SDL_PIXELFORMAT_RGBA32.rawValue,
             Int32(SDL_TEXTUREACCESS_STREAMING.rawValue),
             Int32(api.display.width), Int32(api.display.height)
         )

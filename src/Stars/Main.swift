@@ -5,8 +5,6 @@ import Engine
 struct Stars: Game {
     static let display = (w: 320, h: 200)
     
-    var x: Int = 16, y: Int = 16
-    
     var layer1: [Star] = .init(computing: 2048, by: layer1Speed, display: display)
     var layer2: [Star] = .init(computing: 2048, by: layer2Speed, display: display)
     var layer3: [Star] = .init(computing: 2048, by: layer3Speed, display: display)
@@ -15,24 +13,18 @@ struct Stars: Game {
     static let layer2Speed = 0.5 / 2
     static let layer3Speed = 0.25 / 2
     
-    mutating func update(input: Input) {
-        let mouse = input.mouse
-        self.x = mouse.x
-        self.y = mouse.y
-        
+    mutating func frame(renderer: inout Renderer, input: Input) {
         layer1.advance(by: Self.layer1Speed, display: Self.display)
         layer2.advance(by: Self.layer2Speed, display: Self.display)
         layer3.advance(by: Self.layer3Speed, display: Self.display)
-    }
-    
-    func draw(renderer: inout Renderer) {
+        
         renderer.clear()
         
         layer1.draw(using: &renderer, with: .white)
         layer2.draw(using: &renderer, with: .blue)
         layer3.draw(using: &renderer, with: .darkBlue)
         
-        renderer.sprite(from: .cursor, x: self.x, y: self.y)
+        renderer.sprite(from: .cursor, x: input.mouse.x, y: input.mouse.y)
     }
 }
 

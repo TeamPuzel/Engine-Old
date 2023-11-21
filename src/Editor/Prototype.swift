@@ -1,8 +1,7 @@
 
 import Engine
 
-@main
-struct Editor: Game {
+struct EditorPrototype: Game {
     static let display = (w: 128, h: 128)
     
     var canvas = Canvas()

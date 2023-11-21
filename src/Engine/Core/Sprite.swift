@@ -1,4 +1,17 @@
 
+public struct Sprite {
+    internal let data: [[Color?]]
+}
+
+extension Sprite: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = [Color?]
+    
+    public init(arrayLiteral elements: [Color?]...) {
+        precondition(elements.count == 8 && elements.allSatisfy { $0.count == 8 })
+        self.data = elements
+    }
+}
+
 public extension Sprite {
     static let cursor: Sprite = [
         [nil, .black, nil, nil, nil, nil, nil, nil],
