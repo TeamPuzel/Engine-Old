@@ -3,9 +3,7 @@ import SDL
 
 public protocol Game {
     init()
-    mutating func setup()
-    mutating func update(input: Input)
-    func draw(renderer: inout Renderer)
+    mutating func frame(renderer: inout Renderer, input: Input)
     
     static var display: (w: Int, h: Int) { get }
     static var pixelSize: Int { get }
@@ -17,8 +15,6 @@ enum GameError: Error {
     case createWindow
 }
 
-fileprivate var shouldQuit = false
-fileprivate var isFocused = true
 fileprivate var window: OpaquePointer!
 fileprivate var renderer: OpaquePointer!
 
@@ -30,12 +26,6 @@ public extension Game {
     static var windowMargin: Int { 2 }
     static var windowBorder: Bool { true }
     
-    mutating func setup() {}
-    
-    func quit() { shouldQuit = true }
-    func minimize() { SDL_MinimizeWindow(window) }
-    var windowIsFocused: Bool { isFocused }
-    
     static func main() throws {
         SDL_Init(SDL_INIT_VIDEO)
         defer { SDL_Quit() }
@@ -43,12 +33,6 @@ public extension Game {
         var instance = Self()
         let mirror = Mirror(reflecting: instance)
         let windowName = String(mirror.description.split(separator: " ").last!)
-        
-        if mirror.displayStyle == .class {
-            fatalError(
-                "Classes are not allowed to implement Game as they do not enforce self immutability required by draw."
-            )
-        }
         
         window = SDL_CreateWindow(
             windowName,
@@ -73,8 +57,6 @@ public extension Game {
         var api = Renderer(width: Self.display.w, height: Self.display.h)
         var event = SDL_Event()
         
-        instance.setup()
-        
         let texture = SDL_CreateTexture(
             renderer,
             SDL_PIXELFORMAT_RGB24.rawValue,
@@ -85,7 +67,7 @@ public extension Game {
         
         SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
         
-        var drawRect = SDL_Rect(
+        var displayRect = SDL_Rect(
             x: Int32(windowMargin * pixelSize),
             y: Int32(windowMargin * pixelSize),
             w: Int32((windowWidth - windowMargin * pixelSize) * 2),
@@ -94,7 +76,6 @@ public extension Game {
         
         loop:
         while true {
-            if shouldQuit { break loop }
             while SDL_PollEvent(&event) != 0 {
                 switch event.type {
                     case SDL_QUIT.rawValue: break loop
@@ -102,21 +83,11 @@ public extension Game {
                 }
             }
             
-            if SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS.rawValue != 0 {
-                isFocused = true
-            } else {
-                isFocused = false
-            }
-            
-            instance.update(
-                input: Input(width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin)
-            )
-            
             SDL_RenderClear(renderer)
+            instance.frame(renderer: &api, input: Input(width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin))
             
-            instance.draw(renderer: &api)
             SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
-            SDL_RenderCopy(renderer, texture, nil, &drawRect)
+            SDL_RenderCopy(renderer, texture, nil, &displayRect)
             
             SDL_RenderPresent(renderer)
         }

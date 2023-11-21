@@ -171,16 +171,16 @@ public struct Sprite {
 }
 
 public struct Image {
-    public var data: [Color]
+    public private(set) var data: [Color]
     public let width, height: Int
     
-    init(width: Int, height: Int) {
+    public init(width: Int, height: Int, color: Color = .black) {
         self.width = width
         self.height = height
-        self.data = .init(repeating: .black, count: width * height)
+        self.data = .init(repeating: color, count: width * height)
     }
     
-    subscript(x: Int, y: Int) -> Color {
+    public subscript(x: Int, y: Int) -> Color {
         get { data[x + y * width] }
         set { data[x + y * width] = newValue }
     }
