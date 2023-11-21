@@ -1,6 +1,5 @@
 // NOTE: Renderer can't be a protocol as that would disallow default arguments.
 
-/// Safe, non-escapeable 2D software renderer.
 public struct Renderer: ~Copyable {
     internal var display: Image
     
@@ -17,11 +16,13 @@ public struct Renderer: ~Copyable {
         self.display[x, y] = color
     }
     
-    public mutating func sprite(from sprite: Sprite, x: Int, y: Int) {
-        for (iy, column) in sprite.data.enumerated() {
-            for (ix, pixel) in column.enumerated() {
-                if let pixel {
-                    self.pixel(x: x + ix, y: y + iy, color: pixel)
+    public mutating func image(_ image: Image, x: Int, y: Int) {
+        for ix in 0..<image.width {
+            for iy in 0..<image.height {
+                // TODO! Handle opacity properly
+                let color = image[ix, iy]
+                if color.a == 255 {
+                    pixel(x: ix + x, y: iy + y, color: color)
                 }
             }
         }

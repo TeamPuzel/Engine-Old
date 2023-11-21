@@ -1,31 +1,24 @@
 
 import SDL
 
-public protocol Game {
+public protocol Application {
     init()
     mutating func frame(renderer: inout Renderer, input: Input)
-    
-    static var display: (w: Int, h: Int) { get }
-    static var pixelSize: Int { get }
-    static var windowMargin: Int { get }
-    static var windowBorder: Bool { get }
 }
 
 enum GameError: Error {
     case createWindow
 }
 
-fileprivate var window: OpaquePointer!
-fileprivate var renderer: OpaquePointer!
-
-public extension Game {
+internal extension Application {
     static var display: (w: Int, h: Int) { (128, 128) }
-    internal static var windowWidth: Int { display.w * pixelSize / 2 + windowMargin * pixelSize }
-    internal static var windowHeight: Int { display.h * pixelSize / 2 + windowMargin * pixelSize }
+    static var windowWidth: Int { display.w * pixelSize / 2 + windowMargin * pixelSize }
+    static var windowHeight: Int { display.h * pixelSize / 2 + windowMargin * pixelSize }
     static var pixelSize: Int { 8 }
     static var windowMargin: Int { 2 }
-    static var windowBorder: Bool { true }
-    
+}
+
+public extension Application {
     static func main() throws {
         SDL_Init(SDL_INIT_VIDEO)
         defer { SDL_Quit() }
@@ -34,18 +27,18 @@ public extension Game {
         let mirror = Mirror(reflecting: instance)
         let windowName = String(mirror.description.split(separator: " ").last!)
         
-        window = SDL_CreateWindow(
+        guard let window = SDL_CreateWindow(
             windowName,
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
             Int32(SDL_WINDOWPOS_CENTERED_MASK),
             Int32(windowWidth), Int32(windowHeight),
             SDL_WINDOW_ALLOW_HIGHDPI.rawValue
-        )
-        guard window != nil else { throw GameError.createWindow }
+        ) else {
+            throw GameError.createWindow
+        }
         defer { SDL_DestroyWindow(window) }
-        SDL_SetWindowBordered(window, SDL_bool(from: windowBorder))
         
-        renderer = SDL_CreateRenderer(
+        let renderer = SDL_CreateRenderer(
             window, -1,
             SDL_RENDERER_ACCELERATED.rawValue |
             SDL_RENDERER_PRESENTVSYNC.rawValue
@@ -84,7 +77,9 @@ public extension Game {
             }
             
             SDL_RenderClear(renderer)
-            instance.frame(renderer: &api, input: Input(width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin))
+            instance.frame(renderer: &api, input: Input(
+                window: window, width: display.w, height: display.h, pixel: pixelSize, margin: windowMargin)
+            )
             
             SDL_UpdateTexture(texture, nil, api.display.data, Int32(api.display.width * MemoryLayout<Color>.stride))
             SDL_RenderCopy(renderer, texture, nil, &displayRect)
@@ -99,7 +94,7 @@ public struct Input {
     public let up, down, left, right, a, b: Bool
     public let mouse: (x: Int, y: Int, left: Bool, right: Bool)
     
-    internal init(width w: Int, height h: Int, pixel: Int, margin: Int) {
+    internal init(window: OpaquePointer, width w: Int, height h: Int, pixel: Int, margin: Int) {
         var numKeys: Int32 = 0
         let keys = UnsafeBufferPointer(start: SDL_GetKeyboardState(&numKeys), count: Int(numKeys))
             .lazy.map { $0 == 1 }

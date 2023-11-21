@@ -9,31 +9,31 @@ public struct Color: Equatable {
         self.a = a
     }
     
-    public init(white: UInt8, a: UInt8 = 255) {
-        self.r = white
-        self.g = white
-        self.b = white
+    public init(luminance: UInt8, a: UInt8 = 255) {
+        self.r = luminance
+        self.g = luminance
+        self.b = luminance
         self.a = a
     }
     
     public static let clear = Color(r: 0, g: 0, b: 0, a: 0)
     
-    public static let black      = Color(r: 0,   g: 0,   b: 0  )
-    public static let darkBlue   = Color(r: 29,  g: 43,  b: 83 )
-    public static let darkPurple = Color(r: 126, g: 37,  b: 83 )
-    public static let darkGreen  = Color(r: 0,   g: 135, b: 81 )
-    public static let brown      = Color(r: 171, g: 82,  b: 53 )
-    public static let darkGray   = Color(r: 95,  g: 87,  b: 79 )
-    public static let lightGray  = Color(r: 194, g: 195, b: 199)
-    public static let white      = Color(r: 255, g: 255, b: 255)
-    public static let red        = Color(r: 255, g: 0,   b: 77 )
-    public static let orange     = Color(r: 255, g: 163, b: 0  )
-    public static let yellow     = Color(r: 255, g: 236, b: 39 )
-    public static let green      = Color(r: 0,   g: 228, b: 54 )
-    public static let blue       = Color(r: 41,  g: 173, b: 255)
-    public static let lavender   = Color(r: 131, g: 118, b: 156)
-    public static let pink       = Color(r: 255, g: 119, b: 168)
-    public static let peach      = Color(r: 255, g: 204, b: 170)
+    public static let black      = Pico.black
+    public static let darkBlue   = Pico.darkBlue
+    public static let darkPurple = Pico.darkPurple
+    public static let darkGreen  = Pico.darkGreen
+    public static let brown      = Pico.brown
+    public static let darkGray   = Pico.darkGray
+    public static let lightGray  = Pico.lightGray
+    public static let white      = Pico.white
+    public static let red        = Pico.red
+    public static let orange     = Pico.orange
+    public static let yellow     = Pico.yellow
+    public static let green      = Pico.green
+    public static let blue       = Pico.blue
+    public static let lavender   = Pico.lavender
+    public static let pink       = Pico.pink
+    public static let peach      = Pico.peach
 }
 
 public extension Color {

@@ -1,12 +1,11 @@
 
 import Engine
 
-struct EditorPrototype: Game {
-    static let display = (w: 128, h: 128)
-    
+@main
+struct Editor: Application {
     var canvas = Canvas()
     
-    func frame(renderer: inout Renderer, input: Input) {
+    mutating func frame(renderer: inout Renderer, input: Input) {
         renderer.clear(with: .Strawberry.dark)
         
         // Toolbar
@@ -15,7 +14,7 @@ struct EditorPrototype: Game {
         
         canvas.draw(renderer: &renderer)
         
-        renderer.sprite(from: .cursor, x: input.mouse.x, y: input.mouse.y)
+        renderer.image(.UI.cursor, x: input.mouse.x, y: input.mouse.y)
     }
 }
 
