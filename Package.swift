@@ -6,12 +6,11 @@ let package = Package(
     name: "Engine",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "Stars", dependencies: ["Engine"], path: "src/Stars"),
-        .executableTarget(name: "Editor", dependencies: ["Engine", "UI"], path: "src/Editor"),
+        .executableTarget(name: "Stars", dependencies: ["Engine"], path: "Examples/Stars"),
+        .executableTarget(name: "SpriteEditor", dependencies: ["Engine"], path: "Tools/SpriteEditor"),
         
-        .target(name: "Engine", dependencies: ["SDL"], path: "src/Engine/Core"),
-        .target(name: "UI", dependencies: ["Engine"], path: "src/Engine/UI"),
+        .target(name: "Engine", dependencies: ["SDL"], path: "Engine"),
         
-        .systemLibrary(name: "SDL", path: "sys", pkgConfig: "sdl2")
+        .systemLibrary(name: "SDL", path: "System", pkgConfig: "sdl2")
     ]
 )

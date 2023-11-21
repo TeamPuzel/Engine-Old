@@ -2,8 +2,9 @@
 import SDL
 
 public protocol Application {
+    @SceneBuilder var scene: Scene { get }
+    
     init()
-    mutating func frame(renderer: inout Renderer, input: Input)
 }
 
 enum GameError: Error {
@@ -16,6 +17,10 @@ internal extension Application {
     static var windowHeight: Int { display.h * pixelSize / 2 + windowMargin * pixelSize }
     static var pixelSize: Int { 8 }
     static var windowMargin: Int { 2 }
+    
+    mutating func frame(renderer: inout Renderer, input: Input) {
+        
+    }
 }
 
 public extension Application {

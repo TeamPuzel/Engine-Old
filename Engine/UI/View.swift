@@ -1,8 +1,11 @@
-//
-//  File.swift
-//  
-//
-//  Created by Dawid Wargocki on 21/11/2023.
-//
 
-import Foundation
+open class View {
+    public init() {}
+}
+
+@resultBuilder
+public struct ViewBuilder {
+    public static func buildBlock(_ components: View...) -> [View] {
+        components
+    }
+}

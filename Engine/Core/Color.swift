@@ -71,6 +71,10 @@ public extension Color {
         public static let pink       = Color(r: 255, g: 119, b: 168)
         public static let peach      = Color(r: 255, g: 204, b: 170)
     }
+    
+    enum UI {
+        // TODO! Automatic dark/light theme
+    }
 }
 
 extension Color {
